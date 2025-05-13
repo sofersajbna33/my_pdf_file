@@ -1,0 +1,33 @@
+name: Download and Upload PDF
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Direct download URL (e.g. Amazon S3 temporary link)'
+        required: true
+        type: string
+      filename:
+        description: 'Filename to save as in the repo (e.g. myfile.pdf)'
+        required: true
+        type: string
+
+jobs:
+  download-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Download file
+      run: |
+        curl -L "${{ github.event.inputs.url }}" -o "${{ github.event.inputs.filename }}"
+
+    - name: Commit file
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add "${{ github.event.inputs.filename }}"
+        git commit -m "Add file ${{ github.event.inputs.filename }}"
+        git push
