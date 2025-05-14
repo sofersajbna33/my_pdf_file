@@ -4,13 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: 'Direct download URL (e.g. Amazon S3 temporary link)'
+        description: 'Direct download URL (e.g. S3 or Dropbox)'
         required: true
         type: string
       filename:
-        description: 'Filename to save as in the repo (e.g. myfile.pdf)'
+        description: 'Filename to save as (e.g. file.pdf)'
         required: true
         type: string
+
+permissions:
+  contents: write
 
 jobs:
   download-and-commit:
@@ -22,7 +25,9 @@ jobs:
 
     - name: Download file
       run: |
-        curl -L "${{ github.event.inputs.url }}" -o "${{ github.event.inputs.filename }}"
+        echo "Downloading from: ${{ github.event.inputs.url }}"
+        curl -L -o "${{ github.event.inputs.filename }}" "${{ github.event.inputs.url }}"
+        ls -lh "${{ github.event.inputs.filename }}"
 
     - name: Commit file
       run: |
